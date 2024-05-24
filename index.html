@@ -120,5 +120,30 @@
             }
         });
     </script>
+
+    <!-- Your additional script here -->
+    <script>
+        document.getElementById("LoginForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            var username = document.getElementById("Username").value;
+            var password = document.getElementById("Password").value;
+
+            var matchedCredential = registeredCredentials.find(function(credential) {
+                return credential.username === username && credential.password === password;
+            });
+
+            if (matchedCredential) {
+                localStorage.setItem("loggedInUser", JSON.stringify(matchedCredential));
+                if (matchedCredential.role === "admin") {
+                    window.location.href = "admin.html";
+                } else {
+                    window.location.href = "leave_form.html";
+                }
+            } else {
+                alert("Invalid username or password");
+            }
+        });
+    </script>
 </body>
 </html>
