@@ -95,9 +95,17 @@
 
         leaveRequestForm.addEventListener("submit", function(event) {
             event.preventDefault();
-            createLeaveRequest();
-            leaveRequestForm.reset();
+            if (validateForm()) {
+                createLeaveRequest();
+                leaveRequestForm.reset();
+            } else {
+                alert("Please fill in all required fields.");
+            }
         });
+
+        function validateForm() {
+            return firstName.value && lastName.value && employeeID.value && initialRemainingDays.value && startDate.value && endDate.value;
+        }
 
         function getSubmissionTimeStamp() {
             const now = new Date();
