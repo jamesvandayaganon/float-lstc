@@ -54,7 +54,7 @@
                 <div class="row mb-3">
                     <div class="col">
                         <label class="form-label">Employee ID</label>
-                        <input type="number" class="form-control" id="EmployeeID" placeholder="Your Employee ID" required />
+                        <input type="number" class="form-control" id="EmployeeID" placeholder="Your Employee ID" required readonly />
                     </div>
                     <div class="col">
                         <label class="form-label">Available Leave Balance</label>
@@ -86,15 +86,28 @@
         const endDate = document.getElementById("EndDate");
         const leaveRequestForm = document.getElementById("LeaveRequestForm");
 
-        employeeID.addEventListener("input", function() {
-            const employeeIDValue = employeeID.value;
-            if (employeeIDValue) {
-                updateLeaveBalance(employeeIDValue);
+        document.addEventListener("DOMContentLoaded", function() {
+            const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+            if (loggedInUser) {
+                firstName.value = loggedInUser.firstName;
+                lastName.value = loggedInUser.lastName;
+                employeeID.value = loggedInUser.employeeID;
+                initialRemainingDays.value = loggedInUser.serviceCredit;
+            } else {
+                alert("No user is currently logged in. Please log in first.");
+                window.location.href = "index.html";
             }
         });
 
         leaveRequestForm.addEventListener("submit", function(event) {
             event.preventDefault();
+
+            const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+            if (loggedInUser.employeeID != employeeID.value) {
+                alert("You can only submit a leave request with your own Employee ID.");
+                return;
+            }
+
             if (validateForm()) {
                 createLeaveRequest();
                 leaveRequestForm.reset();
@@ -155,32 +168,16 @@
                 firstName: firstName.value,
                 lastName: lastName.value,
                 employeeID: employeeID.value,
-                initialRemainingDays: initialRemainingDays.value,
                 startDate: startDate.value,
                 endDate: endDate.value,
                 leaveDays: calculateLeaveDays(startDate.value, endDate.value),
-                remainingLeaveDays: calculateRemainingLeaveDays(initialRemainingDays.value),
-                submissionTimeStamp: getSubmissionTimeStamp(),
-                status: 'Pending'
+                remainingLeaveDays: calculateRemainingLeaveDays(parseInt(initialRemainingDays.value, 10)),
+                status: 'Pending',
+                submissionTimeStamp: getSubmissionTimeStamp()
             };
-            displayLeaveMessage('success', formData);  // Call displayLeaveMessage to show success message
-        }
 
-        function updateLeaveBalance(employeeID) {
-            const registeredCredentials = JSON.parse(localStorage.getItem("registeredCredentials")) || [];
-            const user = registeredCredentials.find(credential => credential.employeeID === employeeID);
-            if (user) {
-                initialRemainingDays.value = user.serviceCredit;
-                firstName.value = user.firstName;  // Auto-fill first name
-                lastName.value = user.lastName;    // Auto-fill last name
-            } else {
-                initialRemainingDays.value = '';
-                firstName.value = '';  // Clear first name if user not found
-                lastName.value = '';    // Clear last name if user not found
-            }
+            displayLeaveMessage('success', formData);
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXlGwrp6YpaIoFujCBp2fG71E6aOvs2ltvVfWcZI9B6YUVq/iTn8erqeu4E7" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9bINeJLp3rI2VVS/8GA7ARGo6LZh9hli+0D8ppgWf7K8bwKJ6x9OWf" crossorigin="anonymous"></script>
 </body>
 </html>
